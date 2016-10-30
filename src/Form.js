@@ -1,6 +1,13 @@
 import React from 'react';
-import { reduxForm, Field } from 'redux-form';
+import { reduxForm, Field, getFormValues } from 'redux-form';
 import { validate, warn, asyncValidate } from './validate';
+import { connect } from 'react-redux';
+
+const mapStateToProps = (state) => {
+    return {
+        formValues: getFormValues('FormName')(state)
+    }
+}
 
 const renderField = (field) => {
     const { input, label, type, meta: { touched, error, warning, asyncValidating } } = field;
@@ -19,33 +26,43 @@ const renderField = (field) => {
 }
 
 const Form = (props) => {
-    const { handleSubmit, submitting, pristine, reset, error } = props;
+    const { handleSubmit, submitting, pristine, reset, error, formValues } = props;
     return (
-        <fieldset>
-            <legend>
-                Login Form
-            </legend>
-            {error && (
-                <div className="alert alert-danger" role="alert">
-                    {error}
-                </div>
-            )}
-            <form noValidate onSubmit={handleSubmit}>
-                <Field type="text" name="username" component={renderField} label="User Name" />
-                <Field type="email" name="email" component={renderField} label="Email" />
-                <Field type="text" name="age" component={renderField} label="Age" />
+        <div>
+            <fieldset>
+                <legend>
+                    Register Form
+                </legend>
+                {error && (
+                    <div className="alert alert-danger" role="alert">
+                        {error}
+                    </div>
+                )}
+                <form noValidate onSubmit={handleSubmit}>
+                    <Field type="text" name="username" component={renderField} label="User Name" />
+                    <Field type="email" name="email" component={renderField} label="Email" />
+                    <Field type="text" name="age" component={renderField} label="Age" />
 
-                <button type="submit" className="btn btn-primary" disabled={submitting}>Submit</button>
-                <button type="button" className="btn btn-default" disabled={pristine || submitting} onClick={reset}>Clear</button>
-            </form>
-        </fieldset>
+                    <button type="submit" className="btn btn-primary" disabled={submitting}>Submit</button>
+                    <button type="button" className="btn btn-default" disabled={pristine || submitting} onClick={reset}>Clear</button>
+                </form>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    Values
+                </legend>
+                <pre>
+                {JSON.stringify(props, null, 2)}
+                </pre>
+            </fieldset>
+        </div>
     )
 }
 
-export default reduxForm({
+export default connect(mapStateToProps)(reduxForm({
     form: 'FormName',
     validate,
     warn,
     asyncValidate,
     asyncBlurFields: [ 'email' ]
-})(Form)
+})(Form))
